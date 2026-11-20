@@ -1,0 +1,855 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>little surprise</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ffe0e8, #fff0f3, #ffc6d3);
+            color: #7b263e;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* FLOATING HEARTS */
+        .floating-heart {
+            position: fixed;
+            bottom: -40px;
+            color: #e75480;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatHeart 9s linear infinite;
+        }
+
+        .floating-heart:nth-child(1) {
+            left: 8%;
+            font-size: 25px;
+            animation-delay: 0s;
+        }
+
+        .floating-heart:nth-child(2) {
+            left: 25%;
+            font-size: 18px;
+            animation-delay: 3s;
+        }
+
+        .floating-heart:nth-child(3) {
+            left: 48%;
+            font-size: 30px;
+            animation-delay: 1s;
+        }
+
+        .floating-heart:nth-child(4) {
+            left: 72%;
+            font-size: 22px;
+            animation-delay: 5s;
+        }
+
+        .floating-heart:nth-child(5) {
+            left: 90%;
+            font-size: 28px;
+            animation-delay: 2s;
+        }
+
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 0.6;
+            }
+
+            80% {
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: translateY(-115vh) rotate(25deg);
+                opacity: 0;
+            }
+        }
+
+        /* OPENING SCREEN */
+        .opening-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 25px;
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .top-text {
+            font-size: 13px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #bd526e;
+            margin-bottom: 15px;
+        }
+
+        .opening-screen h1 {
+            font-family: Georgia, serif;
+            font-size: clamp(30px, 6vw, 44px);
+            font-weight: normal;
+            color: #a72c4c;
+            margin-bottom: 15px;
+        }
+
+        .opening-screen p {
+            max-width: 320px;
+            line-height: 1.8;
+            color: #99566a;
+            font-size: 15px;
+        }
+
+        /* ENVELOPE */
+        .envelope-area {
+            width: 220px;
+            height: 150px;
+            position: relative;
+            margin: 40px 0 30px;
+            perspective: 800px;
+        }
+
+        .envelope {
+            position: absolute;
+            inset: 0;
+            background: #e99aaa;
+            border-radius: 5px;
+            box-shadow: 0 10px 25px #b84c6930;
+        }
+
+        .envelope::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: #f7c0cd;
+            clip-path: polygon(0 0, 50% 58%, 100% 0, 100% 100%, 0 100%);
+            border-radius: 5px;
+            z-index: 3;
+        }
+
+        .flap {
+            position: absolute;
+            inset: 0;
+            background: #d9758e;
+            clip-path: polygon(0 0, 100% 0, 50% 58%);
+            transform-origin: top center;
+            transition: transform 1s ease;
+            z-index: 4;
+        }
+
+        .envelope-heart {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 28px;
+            z-index: 5;
+            transition: opacity 0.3s;
+        }
+
+        .envelope-area.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .envelope-area.open .envelope-heart {
+            opacity: 0;
+        }
+
+        /* BUTTONS */
+        button {
+            font-family: Arial, sans-serif;
+        }
+
+        .main-button {
+            background: #d94369;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px #b8325030;
+            transition: 0.3s ease;
+        }
+
+        .main-button:hover {
+            background: #b82f53;
+            transform: translateY(-2px);
+        }
+
+        .main-button:disabled {
+            opacity: 0.65;
+            cursor: default;
+            transform: none;
+        }
+
+        .opening-screen.leaving {
+            opacity: 0;
+            transform: translateY(-15px);
+            pointer-events: none;
+        }
+
+        /* MAIN CONTENT */
+        .surprise-content {
+            display: none;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 950px;
+            margin: auto;
+            padding: 50px 22px 70px;
+            text-align: center;
+        }
+
+        .surprise-content.visible {
+            display: block;
+            animation: pageAppear 1s ease both;
+        }
+
+        @keyframes pageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gallery-heading {
+            font-family: Georgia, serif;
+            font-size: clamp(27px, 5vw, 38px);
+            font-weight: normal;
+            color: #a72c4c;
+            margin-bottom: 12px;
+        }
+
+        .gallery-subtitle {
+            color: #a45c70;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .flower-divider {
+            color: #d94369;
+            letter-spacing: 8px;
+            font-size: 22px;
+            margin-bottom: 25px;
+        }
+
+        /* PHOTO COUNTER */
+        .photo-counter {
+            color: #a43b59;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        /* PHOTO GALLERY */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+            align-items: start;
+        }
+
+        /* PHOTO CARDS START HIDDEN */
+        .photo-card {
+            display: none;
+            position: relative;
+            padding: 12px;
+            border-radius: 12px;
+            background: linear-gradient(145deg, #fff0f4, #ffcbd7, #ffe5ec);
+            border: 2px solid #f2a2b6;
+            box-shadow: 0 7px 20px #b8325020;
+            overflow: hidden;
+        }
+
+        /* Reveal one card when its button is clicked */
+        .photo-card.show {
+            display: block;
+            animation: photoAppear 0.8s ease both;
+        }
+
+        @keyframes photoAppear {
+            from {
+                opacity: 0;
+                transform: translateY(25px) scale(0.94);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* DECORATIVE FLOWERS AND HEARTS */
+        .photo-decoration {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #c72f57;
+            font-size: 19px;
+            padding: 0 3px 8px;
+        }
+
+        .photo-decoration span:nth-child(2) {
+            font-size: 15px;
+            color: #e45c7b;
+        }
+
+        .photo-frame {
+            position: relative;
+            background: #f9c7d4;
+            padding: 5px;
+            border-radius: 7px;
+        }
+
+        .photo-frame::before {
+            content: "♥";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 20px;
+            text-shadow: 0 2px 5px #a72c4c80;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .photo-frame img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 5;
+            object-fit: cover;
+            border-radius: 5px;
+            background: #ffe2e9;
+        }
+
+        .photo-caption {
+            font-family: Georgia, serif;
+            font-size: 14px;
+            color: #963b55;
+            padding: 12px 3px 5px;
+        }
+
+        .bottom-decoration {
+            padding-top: 7px;
+            color: #d94369;
+            font-size: 17px;
+            letter-spacing: 5px;
+        }
+
+        /* REVEAL BUTTON AREA */
+        .reveal-area {
+            margin-top: 35px;
+        }
+
+        .reveal-button {
+            background: #c92e55;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px #b8325030;
+            transition: 0.3s ease;
+        }
+
+        .reveal-button:hover {
+            background: #a82043;
+            transform: translateY(-2px);
+        }
+
+        .reveal-button:disabled {
+            background: #bd7a8b;
+            cursor: default;
+            transform: none;
+        }
+
+        .reveal-hint {
+            font-size: 12px;
+            color: #a45c70;
+            margin-top: 12px;
+        }
+
+        /* PERSONAL MESSAGE */
+        .message {
+            display: none;
+            max-width: 600px;
+            margin: 50px auto 0;
+            padding: 30px 25px;
+            background: #fff5f7;
+            border: 2px solid #f3b0c0;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px #b8325015;
+        }
+
+        .message.show {
+            display: block;
+            animation: messageAppear 1.2s ease both;
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-flowers {
+            font-size: 23px;
+            margin-bottom: 15px;
+        }
+
+        .message h2 {
+            font-family: Georgia, serif;
+            font-weight: normal;
+            font-size: 28px;
+            color: #ad2f50;
+            margin-bottom: 18px;
+        }
+
+        .message p {
+            font-size: 15px;
+            line-height: 1.9;
+            color: #875363;
+            white-space: pre-line;
+        }
+
+        .message-ending {
+            color: #d94369;
+            font-size: 21px;
+            margin-top: 22px;
+        }
+
+        .footer {
+            color: #ad7181;
+            font-size: 12px;
+            margin-top: 40px;
+        }
+
+        /* MOBILE DESIGN */
+        @media (max-width: 600px) {
+            .surprise-content {
+                padding: 40px 13px 50px;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 13px;
+            }
+
+            .photo-card {
+                padding: 8px;
+            }
+
+            .photo-decoration {
+                font-size: 15px;
+            }
+
+            .photo-caption {
+                font-size: 12px;
+            }
+
+            .message {
+                padding: 25px 18px;
+                margin-top: 35px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BACKGROUND MUSIC: Keep background-music.mp3 in the same folder as this HTML file. -->
+    <audio id="backgroundMusic" src="c:\Users\Emerson Castro\Documents\NOV22\music.mp3  " preload="auto" loop></audio>
+
+    <!-- FLOATING HEARTS -->
+    <div class="floating-heart">♡</div>
+    <div class="floating-heart">♥</div>
+    <div class="floating-heart">♡</div>
+    <div class="floating-heart">♥</div>
+    <div class="floating-heart">♡</div>
+
+    <!-- OPENING SCREEN -->
+    <section class="opening-screen" id="openingScreen">
+
+        <div class="top-text">6</div>
+
+        <h1>HI, MY LOVE♡</h1>
+
+        <p>
+            I made something small for you:)
+        </p>
+
+        <div class="envelope-area" id="envelope">
+            <div class="envelope"></div>
+            <div class="flap"></div>
+            <div class="envelope-heart">♥</div>
+        </div>
+
+        <button class="main-button" id="openButton" onclick="openSurprise()">
+            open here
+        </button>
+
+    </section>
+
+    <!-- SURPRISE CONTENT -->
+    <main class="surprise-content" id="surpriseContent">
+
+        <h1 class="gallery-heading">    6   </h1>
+
+        <p class="gallery-subtitle">
+                    ♡
+        </p>
+
+        <div class="flower-divider">✿ ♥ ✿</div>
+
+        <div class="photo-counter" id="photoCounter">
+            0 of 6 pictures
+        </div>
+
+        <!-- PHOTO GALLERY -->
+        <div class="gallery" id="gallery">
+
+            <!-- PHOTO 1 -->
+            <div class="photo-card">
+                <div class="photo-decoration">
+                    <span>✿</span>
+                    <span>♡</span>
+                    <span>🌸</span>
+                </div>
+                <div class="photo-frame">
+                    <img src="images\picture1.jpg">
+                </div>
+                <p class="photo-caption">I</p>
+                <div class="bottom-decoration">♡ ✿ ♡</div>
+            </div>
+
+            <!-- PHOTO 2 -->
+            <div class="photo-card">
+                <div class="photo-decoration">
+                    <span>🌷</span>
+                    <span>♥</span>
+                    <span>✿</span>
+                </div>
+                <div class="photo-frame">
+                    <img src="images\picture2.jpg">
+                </div>
+                <p class="photo-caption">LOVE</p>
+                <div class="bottom-decoration">✿ ♥ ✿</div>
+            </div>
+
+            <!-- PHOTO 3 -->
+            <div class="photo-card">
+                <div class="photo-decoration">
+                    <span>✿</span>
+                    <span>♡</span>
+                    <span>🌹</span>
+                </div>
+                <div class="photo-frame">
+                    <img src="images\picture3.jpg">
+                </div>
+                <p class="photo-caption">YOU</p>
+                <div class="bottom-decoration">♡ 🌸 ♡</div>
+            </div>
+
+            <!-- PHOTO 4 -->
+            <div class="photo-card">
+                <div class="photo-decoration">
+                    <span>🌸</span>
+                    <span>♥</span>
+                    <span>✿</span>
+                </div>
+                <div class="photo-frame">
+                    <img src="images\picture4.jpg">
+                </div>
+                <p class="photo-caption">SO</p>
+                <div class="bottom-decoration">✿ ♡ ✿</div>
+            </div>
+
+            <!-- PHOTO 5 -->
+            <div class="photo-card">
+                <div class="photo-decoration">
+                    <span>✿</span>
+                    <span>♡</span>
+                    <span>🌷</span>
+                </div>
+                <div class="photo-frame">
+                    <img src="images\picture5.jpg">
+                </div>
+                <p class="photo-caption">MUCH</p>
+                <div class="bottom-decoration">♡ ♥ ♡</div>
+            </div>
+
+            <!-- PHOTO 6 -->
+            <div class="photo-card">
+                <div class="photo-decoration">
+                    <span>🌹</span>
+                    <span>♥</span>
+                    <span>✿</span>
+                </div>
+                <div class="photo-frame">
+                    <img src="images\picture6.jpg">
+                </div>
+                <p class="photo-caption">MY, DANII♡</p>
+                <div class="bottom-decoration">✿ ♥ ✿</div>
+            </div>
+
+        </div>
+
+        <!-- BUTTON TO REVEAL PHOTOS ONE BY ONE -->
+        <div class="reveal-area" id="revealArea">
+
+            <button class="reveal-button" id="revealButton"
+                onclick="revealNextPhoto()">
+                Reveal the first photo ♡
+            </button>
+
+            <p class="reveal-hint" id="revealHint">
+               AHHHHHHHH!!!CLICK HERE TO SUBSCRIBE CHARENG HAHAHAHA
+            </p>
+
+        </div>
+
+        <!-- MESSAGE APPEARS AFTER ALL PHOTOS ARE REVEALED -->
+        <section class="message" id="personalMessage">
+
+            <div class="message-flowers">🌸 ♡ 🌷</div>
+
+            <h2> my love my love my love </h2>
+
+            <p id="messageText">hi, bilis oh 6 months na HAHAHAHA., i just want you to know that i'm really happy to have you in my life. thank you for being part of my days and for giving me memories that i can always look back:)
+
+even on the days na busy ka and hindi mo na ako masyadong nakakausap, or hindi na tayo masyadong nakakapagkulitan because of your work, i'm still here, love. always waiting for you, whether it takes seconds, minutes, or hours. i understand that you have responsibilities and things to take care of, and i hope you never feel bad about it. i'll always be here:)</p>
+
+
+            <p id="messageText">sana kahit malayo ako, kahit sa ganitong simpleng paraan, mapasaya kita. i know it's not something grand or bongga, but i hope this little surprise reminds you how special you are to me. i'm sorry that i can't be right there beside you right now, but soon, magkakasama na ulit tayo, love. i'll look forward to that day, okay? 
+
+i miss you so much, my loveee!
+
+please always take care of yourself. don't push yourself too hard, okay? rest whenever you're tired and give yourself time to breathe. you're doing really good, and i'm so proud of you. keep going, love. whatever problems you're facing right now, don't let them bring you down. take things one day at a time. i hope you never forget that you have someone here who believes in you and is always rooting for you.
+
+thank you for being you, love. i'm happy that it's you. and no matter how busy our days get, i hope we never forget to make little moments for each other :))
+
+i love you so much!
+
+MWAAAA! ❤️ ♡</p>
+
+            <div class="message-ending">always, with all my love! ♡</div>
+
+        </section>
+
+        <div class="footer">
+            i hope na magustuha mo i2 boss ♡
+        </div>
+
+    </main>
+
+    <script>
+        // BACKGROUND MUSIC
+        let musicStarted = false;
+        let musicFadeInterval = null;
+
+        function startBackgroundMusic() {
+            if (musicStarted) {
+                return;
+            }
+
+            const music = document.getElementById("backgroundMusic");
+            music.volume = 0;
+
+            const playPromise = music.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(function () {
+                    musicStarted = true;
+
+                    // Gradually increase the volume for a smooth fade-in
+                    let volume = 0;
+
+                    if (musicFadeInterval) {
+                        clearInterval(musicFadeInterval);
+                    }
+
+                    musicFadeInterval = setInterval(function () {
+                        volume = Math.min(volume + 0.05, 0.5);
+                        music.volume = volume;
+
+                        if (volume >= 0.5) {
+                            clearInterval(musicFadeInterval);
+                            musicFadeInterval = null;
+                        }
+                    }, 100);
+
+                }).catch(function () {
+                    // Some browsers block delayed autoplay.
+                    // If that happens, the user's first click on the message starts the music.
+                    const message = document.getElementById("personalMessage");
+                    message.addEventListener("click", startBackgroundMusic, { once: true });
+                });
+
+            } else {
+                musicStarted = true;
+                music.volume = 10;
+            }
+        }
+
+        // OPEN THE ENVELOPE
+        function openSurprise() {
+
+            const button = document.getElementById("openButton");
+            const envelope = document.getElementById("envelope");
+            const openingScreen = document.getElementById("openingScreen");
+            const surpriseContent = document.getElementById("surpriseContent");
+
+            button.disabled = true;
+            button.textContent = "opening your surprise...";
+
+            // Play the envelope opening animation
+            envelope.classList.add("open");
+
+            // Wait for the envelope to open
+            setTimeout(function () {
+
+                openingScreen.classList.add("leaving");
+
+                setTimeout(function () {
+
+                    openingScreen.style.display = "none";
+
+                    // Show the gallery, but keep all photos hidden
+                    surpriseContent.classList.add("visible");
+
+                    // Scroll to the beginning of the surprise
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
+
+                }, 700);
+
+            }, 1200);
+        }
+
+        // REVEAL PHOTOS ONE AT A TIME
+        let currentPhoto = 0;
+
+        function revealNextPhoto() {
+
+            const photos = document.querySelectorAll(".photo-card");
+            const button = document.getElementById("revealButton");
+            const counter = document.getElementById("photoCounter");
+            const hint = document.getElementById("revealHint");
+
+            // Stop if every photo has already been revealed
+            if (currentPhoto >= photos.length) {
+                return;
+            }
+
+            // Reveal only the next photo
+            photos[currentPhoto].classList.add("show");
+
+            currentPhoto++;
+
+            // Update the photo counter
+            counter.textContent =
+                currentPhoto + " of " + photos.length + " pictures revealed";
+
+            // Change the button text for the next picture
+            if (currentPhoto < photos.length) {
+
+                button.textContent = "NEXT PHOTO";
+
+                hint.textContent =
+                    "pindot mo hereee bale 6 yan kasi 6months? wow HAHAHAHA";
+
+            } else {
+
+                // All photos have been revealed
+                button.textContent = "All photos revealed ♡";
+                button.disabled = true;
+
+                hint.textContent =
+                    "now there's one last thing for you...";
+
+                // Hide the button area after a short pause
+                setTimeout(function () {
+
+                    document.getElementById("revealArea").style.display = "none";
+
+                    // Show the personal message last
+                    const message =
+                        document.getElementById("personalMessage");
+
+                    message.classList.add("show");
+
+                    // Start the background music when the message appears
+                    startBackgroundMusic();
+
+                    // Bring the message into view
+                    setTimeout(function () {
+
+                        message.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+
+                    }, 300);
+
+                }, 900);
+            }
+
+            // Bring the newly revealed picture into view
+            setTimeout(function () {
+
+                photos[currentPhoto - 1].scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+
+            }, 150);
+        }
+    </script>
+
+</body>
+</html>
